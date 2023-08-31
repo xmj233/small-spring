@@ -4,7 +4,7 @@ import org.example.springframework.beans.PropertyValues;
 
 public class BeanDefinition {
 
-    private Class beanDefinition;
+    private Class beanClass;
 
     private PropertyValues propertyValues;
 
@@ -12,17 +12,17 @@ public class BeanDefinition {
         return propertyValues;
     }
 
-    public BeanDefinition(Class beanDefinition, PropertyValues propertyValues) {
-        this.beanDefinition = beanDefinition;
+    public BeanDefinition(Class beanClass, PropertyValues propertyValues) {
+        this.beanClass = beanClass;
         this.propertyValues = propertyValues != null ? propertyValues : new PropertyValues();
     }
 
-    public BeanDefinition(Class beanDefinition) {
-        this.beanDefinition = beanDefinition;
+    public BeanDefinition(Class beanClass) {
+        this.beanClass = beanClass;
         this.propertyValues = new PropertyValues();
     }
 
-    public Class getBeanDefinition() {
-        return beanDefinition;
+    public Class getBeanClass() {
+        return beanClass;
     }
 }

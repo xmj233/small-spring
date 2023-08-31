@@ -7,4 +7,8 @@ public interface BeanDefinitionRegistry {
     void registerBeanDefinition(String name, BeanDefinition beanDefinition);
 
     boolean containsBeanDefinition(String name);
+
+    BeanDefinition getBeanDefinition(String beanName);
+
+    String[] getBeanDefinitionNames();
 }

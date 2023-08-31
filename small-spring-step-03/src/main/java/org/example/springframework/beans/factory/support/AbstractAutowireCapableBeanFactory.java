@@ -22,7 +22,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     }
 
     @Override
-    protected Object createBean(String name, BeanDefinition beanDefinition, Object... args) {
+    protected Object createBean(String name, BeanDefinition beanDefinition, Object... args) throws BeansException {
         Object bean = null;
 
         try {
@@ -59,7 +59,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     private Object createBeanInstance(BeanDefinition beanDefinition, Object[] args) {
         Constructor ctorToUse = null;
 
-        Class clazz = beanDefinition.getBeanDefinition();
+        Class clazz = beanDefinition.getBeanClass();
         Constructor[] constructors = clazz.getConstructors();
 
         for (Constructor ctor : constructors) {

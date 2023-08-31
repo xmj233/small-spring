@@ -4,9 +4,6 @@ public class BeanReference {
 
     private String beanName;
 
-    public BeanReference() {
-    }
-
     public BeanReference(String beanName) {
         this.beanName = beanName;
     }

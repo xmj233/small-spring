@@ -9,7 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 public class SimpleInstantiationStrategy implements InstantiationStrategy {
     @Override
     public Object instantiate(BeanDefinition beanDefinition, Constructor ctor, Object[] args) {
-        Class clazz = beanDefinition.getBeanDefinition();
+        Class clazz = beanDefinition.getBeanClass();
 
         try {
             if (ctor != null) {
