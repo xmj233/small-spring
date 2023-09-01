@@ -52,6 +52,12 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
         loadBeanDefinitions(resource);
     }
 
+    @Override
+    public void loadBeanDefinitions(String... locations) {
+        for (String location : locations) {
+            loadBeanDefinitions(location);
+        }
+    }
 
     private void doLoadBeanDefinitions(InputStream in) throws ClassNotFoundException {
         Document doc = XmlUtil.readXML(in);
@@ -77,7 +83,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
             String beanName = id != null ? id : name;
 
-            if (beanName == null) {
+            if (StrUtil.isEmpty(beanName)) {
                 beanName = StrUtil.lowerFirst(clazz.getSimpleName());
             }
 
