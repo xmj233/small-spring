@@ -44,5 +44,8 @@ public class ApiTest {
 
         userService.queryUserInfo();
 
+        System.out.println("userService.ApplicationContext= " + userService.getApplicationContext());
+        System.out.println("userService.BeanFactory= " + userService.getBeanFactory());
+
     }
 }
