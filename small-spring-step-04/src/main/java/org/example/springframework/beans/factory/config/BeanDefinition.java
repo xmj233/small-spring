@@ -8,8 +8,28 @@ public class BeanDefinition {
 
     private PropertyValues propertyValues;
 
+    private String initMethodName;
+
+    private String destroyMethodName;
+
     public PropertyValues getPropertyValues() {
         return propertyValues;
+    }
+
+    public void setInitMethodName(String initMethodName) {
+        this.initMethodName = initMethodName;
+    }
+
+    public void setDestroyMethodName(String destroyMethodName) {
+        this.destroyMethodName = destroyMethodName;
+    }
+
+    public String getInitMethodName() {
+        return initMethodName;
+    }
+
+    public String getDestroyMethodName() {
+        return destroyMethodName;
     }
 
     public BeanDefinition(Class beanClass, PropertyValues propertyValues) {

@@ -14,18 +14,30 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
 
     @Override
     public void refresh() throws BeansException {
+        // 创建bean工厂并将bean注入spring容器
         refreshBeanFactory();
 
         ConfigurableListableBeanFactory beanFactory = getBeanFactory();
 
+        // 执行beanFactoryPostProcessor
         invokeBeanFactoryPostProcessor(beanFactory);
 
+        // 将beanPostProcessor注入spring容器
         registerBeanPostProcessor(beanFactory);
 
         // 实例化bean
         beanFactory.preInstantiateSingletons();
     }
 
+    @Override
+    public void registerShutdownHook() {
+        Runtime.getRuntime().addShutdownHook(new Thread(this::close));
+    }
+
+    @Override
+    public void close() {
+        getBeanFactory().destroySingletons();
+    }
 
     protected abstract void refreshBeanFactory() throws BeansException;
 

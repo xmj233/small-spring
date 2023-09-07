@@ -38,6 +38,7 @@ public class ApiTest {
     @Test
     public void testXml() {
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml");
+        applicationContext.registerShutdownHook();
 
         UserService userService = applicationContext.getBean("userService", UserService.class);
 
