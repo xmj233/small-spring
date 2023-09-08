@@ -3,7 +3,7 @@
 
     <bean id="userDao" class="org.example.springframework.beans.UserDao" init-method="initDataMethod" destroy-method="destroyDataMethod"/>
 
-    <bean id="userService" class="org.example.springframework.beans.UserService">
+    <bean id="userService" class="org.example.springframework.beans.UserService" scope = "prototype">
         <property name="uid" value="10001"/>
         <property name="company" value="腾讯"/>
         <property name="location" value="深圳"/>

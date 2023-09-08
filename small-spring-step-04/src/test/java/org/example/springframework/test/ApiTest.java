@@ -48,4 +48,15 @@ public class ApiTest {
         System.out.println("userService.BeanFactory= " + userService.getBeanFactory());
 
     }
+
+    @Test
+    public void testPrototype() {
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml");
+
+        UserService userService1 = applicationContext.getBean("userService", UserService.class);
+//        UserService userService2 = applicationContext.getBean("userService", UserService.class);
+
+        System.out.println("userService1 = " + userService1);
+//        System.out.println("userService2 = " + userService2);
+    }
 }
