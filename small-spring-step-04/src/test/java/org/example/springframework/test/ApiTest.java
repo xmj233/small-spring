@@ -1,10 +1,7 @@
 package org.example.springframework.test;
 
 import cn.hutool.core.io.IoUtil;
-import org.example.springframework.beans.MyBeanFactoryPostProcessor;
-import org.example.springframework.beans.MyBeanPostProcessor;
-import org.example.springframework.beans.Service;
-import org.example.springframework.beans.UserService;
+import org.example.springframework.beans.*;
 import org.example.springframework.beans.factory.support.BeanDefinitionReader;
 import org.example.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.example.springframework.beans.factory.xml.XmlBeanDefinitionReader;
@@ -68,5 +65,13 @@ public class ApiTest {
         Service service = applicationContext.getBean("service", Service.class);
         String s = service.queryUserInfo();
         System.out.println(s);
+    }
+
+    @Test
+    public void test_event() {
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring-event.xml");
+        applicationContext.publishEvent(new CustomEvent(applicationContext, 1019129009086763L, "成功了！"));
+
+        applicationContext.registerShutdownHook();
     }
 }
