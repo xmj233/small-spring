@@ -3,6 +3,7 @@ package org.example.springframework.test;
 import cn.hutool.core.io.IoUtil;
 import org.example.springframework.beans.MyBeanFactoryPostProcessor;
 import org.example.springframework.beans.MyBeanPostProcessor;
+import org.example.springframework.beans.Service;
 import org.example.springframework.beans.UserService;
 import org.example.springframework.beans.factory.support.BeanDefinitionReader;
 import org.example.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -54,9 +55,18 @@ public class ApiTest {
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml");
 
         UserService userService1 = applicationContext.getBean("userService", UserService.class);
-//        UserService userService2 = applicationContext.getBean("userService", UserService.class);
+        UserService userService2 = applicationContext.getBean("userService", UserService.class);
 
         System.out.println("userService1 = " + userService1);
-//        System.out.println("userService2 = " + userService2);
+        System.out.println("userService2 = " + userService2);
+    }
+
+    @Test
+    public void test_factoryBean() {
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring-factorybean.xml");
+
+        Service service = applicationContext.getBean("service", Service.class);
+        String s = service.queryUserInfo();
+        System.out.println(s);
     }
 }
