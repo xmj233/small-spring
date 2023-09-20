@@ -1,6 +1,10 @@
 package org.example.springframework.test;
 
 import cn.hutool.core.io.IoUtil;
+import org.example.springframework.aop.*;
+import org.example.springframework.aop.aspectj.AspectJExpressionPointcut;
+import org.example.springframework.aop.framework.Cglib2AopProxy;
+import org.example.springframework.aop.framework.JdkDynamicAopProxy;
 import org.example.springframework.beans.*;
 import org.example.springframework.beans.factory.support.BeanDefinitionReader;
 import org.example.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -12,6 +16,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 public class ApiTest {
     @Test
@@ -73,5 +79,76 @@ public class ApiTest {
         applicationContext.publishEvent(new CustomEvent(applicationContext, 1019129009086763L, "成功了！"));
 
         applicationContext.registerShutdownHook();
+    }
+
+
+    @Test
+    public void test_aop() throws NoSuchMethodException {
+        AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut("execution(* org.example.springframework.aop.RoleService.*(..))\"");
+
+
+        Class<RoleService> roleServiceClass = RoleService.class;
+
+        boolean matches = pointcut.matches(roleServiceClass);
+        System.out.println(matches);
+
+        Method queryUserInfo = roleServiceClass.getDeclaredMethod("addRole");
+        boolean matches1 = pointcut.matches(queryUserInfo, roleServiceClass);
+        System.out.println(matches1);
+
+
+    }
+
+    @Test
+    public void test_proxy_class() {
+        IRoleService userService = (IRoleService) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class[]{IRoleService.class}, (proxy, method, args) -> "你被代理了！");
+        String result = userService.addRole();
+        System.out.println("测试结果：" + result);
+
+    }
+
+
+    @Test
+    public void test_jdk_dynamic_proxy() {
+        IRoleService roleService = new RoleService();
+
+        AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut("execution(* org.example.springframework.aop.IRoleService.*(..))\"");
+
+        AdviceSupport adviceSupport = new AdviceSupport();
+
+        adviceSupport.setMethodInterceptor(new RoleMethodInterceptor());
+        adviceSupport.setMethodMatcher(pointcut);
+        adviceSupport.setTargetSource(new TargetSource(roleService));
+
+        JdkDynamicAopProxy jdkDynamicAopProxy = new JdkDynamicAopProxy(adviceSupport);
+
+        IRoleService proxy = (IRoleService) jdkDynamicAopProxy.getProxy();
+        String s = proxy.addRole();
+        System.out.println("测试结果: " + s);
+
+        String role = proxy.getRole();
+        System.out.println("测试结果: " + role);
+    }
+
+    @Test
+    public void test_cglib2_aop_proxy() {
+        IRoleService roleService = new RoleService();
+
+        AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut("execution(* org.example.springframework.aop.IRoleService.*(..))\"");
+
+        AdviceSupport adviceSupport = new AdviceSupport();
+
+        adviceSupport.setMethodInterceptor(new RoleMethodInterceptor());
+        adviceSupport.setMethodMatcher(pointcut);
+        adviceSupport.setTargetSource(new TargetSource(roleService));
+
+        Cglib2AopProxy cglib2AopProxy = new Cglib2AopProxy(adviceSupport);
+
+        IRoleService proxy = (IRoleService) cglib2AopProxy.getProxy();
+        String s = proxy.addRole();
+        System.out.println("测试结果: " + s);
+
+        String role = proxy.getRole();
+        System.out.println("测试结果: " + role);
     }
 }
