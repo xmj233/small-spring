@@ -151,4 +151,11 @@ public class ApiTest {
         String role = proxy.getRole();
         System.out.println("测试结果: " + role);
     }
+
+    @Test
+    public void test_aop_() {
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring-aop2.xml");
+        IRoleService roleService = applicationContext.getBean("roleService", IRoleService.class);
+        roleService.addRole();
+    }
 }

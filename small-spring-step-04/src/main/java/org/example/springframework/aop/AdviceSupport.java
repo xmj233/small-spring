@@ -4,11 +4,22 @@ import org.aopalliance.intercept.MethodInterceptor;
 
 public class AdviceSupport {
 
+    // ProxyConfig
+    private boolean proxyTargetClass = false;
+
     private TargetSource targetSource;
 
     private MethodInterceptor methodInterceptor;
 
     private MethodMatcher methodMatcher;
+
+    public void setProxyTargetClass(boolean proxyTargetClass) {
+        this.proxyTargetClass = proxyTargetClass;
+    }
+
+    public boolean isProxyTargetClass() {
+        return proxyTargetClass;
+    }
 
     public TargetSource getTargetSource() {
         return targetSource;

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans>
+
+    <bean id="roleService" class="org.example.springframework.aop.RoleService"></bean>
+
+    <bean id="beforeAdvice" class="org.example.springframework.aop.RoleServiceBeforeAdvice"></bean>
+
+    <bean class="org.example.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
+
+    <bean class="org.example.springframework.aop.aspectj.AspectJExpressionPointcutAdvisor">
+        <property name="expression" value="execution(* org.example.springframework.aop.IRoleService.*(..))"/>
+        <property name="advice" ref="methodInterceptor"/>
+    </bean>
+
+    <bean id="methodInterceptor" class="org.example.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor">
+        <property name="advice" ref="beforeAdvice"/>
+    </bean>
+
+</beans>

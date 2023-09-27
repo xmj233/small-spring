@@ -6,10 +6,7 @@ import org.example.springframework.beans.BeansException;
 import org.example.springframework.beans.PropertyValue;
 import org.example.springframework.beans.PropertyValues;
 import org.example.springframework.beans.factory.*;
-import org.example.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.example.springframework.beans.factory.config.BeanDefinition;
-import org.example.springframework.beans.factory.config.BeanPostProcessor;
-import org.example.springframework.beans.factory.config.BeanReference;
+import org.example.springframework.beans.factory.config.*;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -32,6 +29,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         Object bean = null;
 
         try {
+            bean = resolveBeforeInstantiation(name, beanDefinition);
+
+            if (bean != null) {
+                return bean;
+            }
+
             bean = createBeanInstance(beanDefinition, args);
 
             applyPropertyValues(name, beanDefinition, bean);
@@ -48,6 +51,24 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             addSingleton(name, bean);
         }
         return bean;
+    }
+
+    private Object resolveBeforeInstantiation(String name, BeanDefinition beanDefinition) {
+        Object bean = applyBeanPostProcessorBeforeInstantiation(beanDefinition.getBeanClass(), name);
+
+        if (bean != null) bean = applyBeanPostProcessorsAfterInitialization(bean, name);
+        return bean;
+    }
+
+    // 注意，此方法为新增方法，与 “applyBeanPostProcessorBeforeInitialization” 是两个方法
+    public Object applyBeanPostProcessorBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {
+        for (BeanPostProcessor processor : getBeanPostProcessors()) {
+            if (processor instanceof InstantiationAwareBeanPostProcessor) {
+                Object result = ((InstantiationAwareBeanPostProcessor)processor).postProcessBeforeInstantiation(beanClass, beanName);
+                if (null != result) return result;
+            }
+        }
+        return null;
     }
 
     protected void registerDisposableBeanIfNecessary(String beanName, Object bean, BeanDefinition beanDefinition) {
@@ -139,7 +160,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
         List<BeanPostProcessor> beanPostProcessors = getBeanPostProcessors();
         for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
-            Object current = beanPostProcessor.postProcessBeforeInitialization(result, beanName);
+            Object current = beanPostProcessor.postProcessAfterInitialization(result, beanName);
             if (current == null) {
                 return result;
             }
@@ -154,7 +175,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
         List<BeanPostProcessor> beanPostProcessors = getBeanPostProcessors();
         for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
-            Object current = beanPostProcessor.postProcessAfterInitialization(result, beanName);
+            Object current = beanPostProcessor.postProcessBeforeInitialization(result, beanName);
             if (current == null) {
                 return result;
             }

@@ -1,6 +1,5 @@
 package org.example.springframework.aop.framework;
 
-import jdk.jfr.internal.OldObjectSample;
 import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.AccessibleObject;
