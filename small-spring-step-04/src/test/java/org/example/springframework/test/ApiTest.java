@@ -5,6 +5,7 @@ import org.example.springframework.aop.*;
 import org.example.springframework.aop.aspectj.AspectJExpressionPointcut;
 import org.example.springframework.aop.framework.Cglib2AopProxy;
 import org.example.springframework.aop.framework.JdkDynamicAopProxy;
+import org.example.springframework.basepackagetest.ProductService;
 import org.example.springframework.beans.*;
 import org.example.springframework.beans.factory.support.BeanDefinitionReader;
 import org.example.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -157,5 +158,14 @@ public class ApiTest {
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring-aop2.xml");
         IRoleService roleService = applicationContext.getBean("roleService", IRoleService.class);
         roleService.addRole();
+    }
+
+    @Test
+    public void test_scan() {
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring-scan.xml");
+        ProductService product = applicationContext.getBean("productService", ProductService.class);
+        String s = product.queryProductInfo();
+        System.out.println(s);
+
     }
 }

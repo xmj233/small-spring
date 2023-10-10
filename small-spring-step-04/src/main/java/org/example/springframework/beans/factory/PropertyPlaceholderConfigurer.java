@@ -9,6 +9,8 @@ import org.example.springframework.core.io.DefaultResourceLoader;
 import org.example.springframework.core.io.Resource;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class PropertyPlaceholderConfigurer implements BeanFactoryPostProcessor {
@@ -35,6 +37,8 @@ public class PropertyPlaceholderConfigurer implements BeanFactoryPostProcessor {
             properties.load(resource.getInPutStream());
 
             String[] beanDefinitionNames = beanFactory.getBeanDefinitionNames();
+            List<PropertyValue> propertyValueUpdates = new ArrayList<>();
+
             for (String beanName : beanDefinitionNames) {
                 BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanName);
 
@@ -50,8 +54,13 @@ public class PropertyPlaceholderConfigurer implements BeanFactoryPostProcessor {
                         String propKey = strVal.substring(startIdx + 2, stopIdx);
                         String propVal = properties.getProperty(propKey);
                         buffer.replace(startIdx, stopIdx + 1, propVal);
-                        propertyValues.addPropertyValues(new PropertyValue(propertyValue.getName(), buffer.toString()));
+                        propertyValueUpdates.add(new PropertyValue(propertyValue.getName(), buffer.toString()));
+
                     }
+                }
+
+                for (PropertyValue updatedValue : propertyValueUpdates) {
+                    propertyValues.addPropertyValues(updatedValue);
                 }
             }
         } catch (IOException e) {
