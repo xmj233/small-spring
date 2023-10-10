@@ -1,21 +1,22 @@
 package org.example.springframework.beans.factory.xml;
 
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.XmlUtil;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 import org.example.springframework.beans.BeansException;
 import org.example.springframework.beans.PropertyValue;
 import org.example.springframework.beans.factory.config.BeanDefinition;
 import org.example.springframework.beans.factory.config.BeanReference;
 import org.example.springframework.beans.factory.support.AbstractBeanDefinitionReader;
 import org.example.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.example.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.example.springframework.core.io.Resource;
 import org.example.springframework.core.io.ResourceLoader;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
@@ -33,7 +34,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
             try (InputStream in = resource.getInPutStream()) {
                 doLoadBeanDefinitions(in);
             }
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException | DocumentException e) {
             throw new BeansException("IOException parsing XML document from " + resource, e);
         }
     }
@@ -59,29 +60,32 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
         }
     }
 
-    private void doLoadBeanDefinitions(InputStream in) throws ClassNotFoundException {
-        Document doc = XmlUtil.readXML(in);
-        Element root = doc.getDocumentElement();
-        NodeList childNodes = root.getChildNodes();
+    private void doLoadBeanDefinitions(InputStream in) throws ClassNotFoundException, DocumentException {
 
-        for (int i = 0; i < childNodes.getLength(); i++) {
+        SAXReader reader = new SAXReader();
+        org.dom4j.Document document = reader.read(in);
+        Element root = document.getRootElement();
 
-            if (!(childNodes.item(i) instanceof Element)) {
-                continue;
+        Element componentScan = root.element("component-scan");
+
+        if (componentScan != null) {
+            String basePackage = componentScan.attributeValue("base-package");
+            if (StrUtil.isEmpty(basePackage)) {
+                throw new BeansException("The value of base-package attribute can not be empty or null");
             }
+            scanPackages(basePackage);
+        }
 
-            if (!"bean".equals(childNodes.item(i).getNodeName())) {
-                continue;
-            }
 
-            Element bean = (Element) childNodes.item(i);
+        List<Element> beanList = root.elements("bean");
+        for (Element bean : beanList) {
 
-            String id = bean.getAttribute("id");
-            String name = bean.getAttribute("name");
-            String className = bean.getAttribute("class");
-            String initMethodName = bean.getAttribute("init-method");
-            String destroyMethodName = bean.getAttribute("destroy-method");
-            String scope = bean.getAttribute("scope");
+            String id = bean.attributeValue("id");
+            String name = bean.attributeValue("name");
+            String className = bean.attributeValue("class");
+            String initMethodName = bean.attributeValue("init-method");
+            String destroyMethodName = bean.attributeValue("destroy-method");
+            String scope = bean.attributeValue("scope");
             Class<?> clazz = Class.forName(className);
 
             String beanName = id != null ? id : name;
@@ -98,20 +102,12 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
                 beanDefinition.setScope(scope);
             }
 
-            for (int j = 0; j < bean.getChildNodes().getLength(); j++) {
+            List<Element> propertyList = bean.elements("property");
+            for (Element property : propertyList) {
 
-                if (!(bean.getChildNodes().item(j) instanceof Element)) {
-                    continue;
-                }
-
-                if (!"property".equals(bean.getChildNodes().item(j).getNodeName())) {
-                    continue;
-                }
-                Element property = (Element) bean.getChildNodes().item(j);
-
-                String attrName = property.getAttribute("name");
-                String attrValue = property.getAttribute("value");
-                String attref = property.getAttribute("ref");
+                String attrName = property.attributeValue("name");
+                String attrValue = property.attributeValue("value");
+                String attref = property.attributeValue("ref");
 
                 Object value = StrUtil.isNotEmpty(attref) ? new BeanReference(attref) : attrValue;
 
@@ -126,5 +122,11 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
             getRegistry().registerBeanDefinition(beanName, beanDefinition);
         }
+    }
+
+    private void scanPackages(String basePackage) {
+        String[] basePackageList = StrUtil.split(basePackage, ",");
+        ClassPathBeanDefinitionScanner classPathBeanDefinitionScanner = new ClassPathBeanDefinitionScanner(getRegistry());
+        classPathBeanDefinitionScanner.doScan(basePackageList);
     }
 }
